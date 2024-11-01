@@ -4,7 +4,7 @@
   "description": "A monitoring tool that tracks domain names and SSL certificates expiration dates and sends timely reminders before they expire.",
   "main": "index.js",
   "scripts": {
-    "build": "ncc build index.js --minify"
+    "build": "ncc build index.js"
   },
   "keywords": [
     "domain",
