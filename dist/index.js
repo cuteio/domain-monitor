@@ -31817,14 +31817,24 @@ const github = __nccwpck_require__(3228);
 
 try {
     // 读取输入参数
-    const domains = core.getInput('domains');
-    const checkType = core.getInput('check-type');
-    const warningDays = core.getInput('warning-days');
-    const githubToken = core.getInput('github-token');
-    const assignee = core.getInput('assignee');
+    const inputs = {
+      domains: core.getInput('domains', { required: true }),
+      checkType: core.getInput('check-type', { required: true }),
+      warningDays: core.getInput('warning-days', { required: true }),
+      githubToken: core.getInput('github-token', { required: true }),
+      assignee: core.getInput('assignee', { required: true })
+    };
+
+    core.info('Received inputs:', {
+      domains: inputs.domains || 'NOT SET',
+      checkType: inputs.checkType || 'NOT SET',
+      warningDays: inputs.warningDays || 'NOT SET',
+      assignee: inputs.assignee || 'NOT SET',
+      // 不要打印 githubToken
+    });
 
     // 将域名字符串转换为数组
-    const domainList = domains.split('\n').map(domain => domain.trim()).filter(Boolean);
+    const domainList = inputs.domains.split('\n').map(domain => domain.trim()).filter(Boolean);
 
     // 打印接收到的参数（用于测试）
     core.info('Received parameters:');
@@ -31834,19 +31844,8 @@ try {
     core.info('Assignee:', assignee);
     // 注意：不要打印 GitHub Token
 
-    // 生成简单的报告
-    const report = {
-      timestamp: new Date().toISOString(),
-      parameters: {
-        domains: domainList,
-        checkType,
-        warningDays,
-        assignee
-      }
-    };
-
     // 设置输出
-    core.setOutput('report', JSON.stringify(report, null, 2));
+    core.setOutput('report', JSON.stringify({}));
 
 } catch (error) {
     core.setFailed(`Action failed: ${error.message}`);
