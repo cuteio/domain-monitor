@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "parse-whois": "^1.0.0",
+    "whois": "^2.14.2"
+  }
+}

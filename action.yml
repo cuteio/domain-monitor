@@ -1,0 +1,23 @@
+name: 'Domain & SSL Monitor'
+description: 'Monitor domain expiration and SSL certificate status'
+inputs:
+  domains:
+    description: 'List of domains to check (separated by newline)'
+    required: true
+  check-type:
+    description: 'Type of check to perform, ssl or registry'
+    required: true
+  warning-days:
+    description: 'Number of days before expiration to trigger warning'
+    required: true
+    default: 30
+  github-token:
+    description: 'GitHub token for creating issues'
+    required: true
+  assignee:
+    description: 'GitHub username to assign issues to'
+    required: true
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
