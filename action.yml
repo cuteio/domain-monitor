@@ -1,5 +1,9 @@
-name: 'Domain & SSL Monitor'
-description: 'Monitor domain expiration and SSL certificate status'
+name: 'Monitor Domain and SSL Certificate Expiration'
+description: 'Automatically track and alert on domain names and SSL certificates before they expire.'
+author: liluo
+branding:
+  icon: alert-triangle
+  color: gray-dark
 inputs:
   domains:
     description: 'List of domains to check (separated by newline)'
