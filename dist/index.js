@@ -36500,6 +36500,7 @@ const KEYS = [
 function getDatePaidTill(domain) {
     return new Promise((resolve, reject) => {
         whois.lookup(domain, function(err, data) {
+            console.log(`${domain} - err: ${err} - data: ${data}`);
             if (err) reject(err);
 
             const parsedData = parser.parseWhoIsData(data);
