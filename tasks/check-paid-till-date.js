@@ -9,6 +9,7 @@ const KEYS = [
     'Registrar Registration Expiration Date',
     'Registry Expiry Date',
     'Expiration Time',
+    'Expiry Date',
     'paid-till'
 ];
 
@@ -20,7 +21,10 @@ const KEYS = [
 function getDatePaidTill(domain) {
     return new Promise((resolve, reject) => {
         whois.lookup(domain, function(err, data) {
-            if (err) reject(err);
+            if (err) {
+	        console.log(`${domain} - err: ${err} - data: ${data}`);
+		reject(err);
+            }
 
             const parsedData = parser.parseWhoIsData(data);
             let paidTillDate;
