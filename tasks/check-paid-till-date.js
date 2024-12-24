@@ -21,6 +21,8 @@ const KEYS = [
 function getDatePaidTill(domain) {
     return new Promise((resolve, reject) => {
         whois.lookup(domain, function(err, data) {
+            console.log(`check domain ${domain}`);
+            console.log(`${data} \n`);
             if (err) {
 	        console.log(`${domain} - err: ${err} - data: ${data}`);
 		reject(err);
