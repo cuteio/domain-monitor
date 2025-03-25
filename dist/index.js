@@ -36504,8 +36504,13 @@ function getDatePaidTill(domain) {
             console.log(`check domain ${domain}`);
 
             if (err) {
-	        console.log(`${domain} - err: ${err} - data: ${data}`);
-		reject(err);
+                try {
+                    const rdapDate = getRdapExpiryDate(domain);
+                    resolve(rdapDate);
+                } catch (error) {
+                    console.log(`${domain} - err: ${err} - data: ${data}`);
+                    reject(err);
+                }
             }
 
             const parsedData = parser.parseWhoIsData(data);
@@ -36523,6 +36528,40 @@ function getDatePaidTill(domain) {
             resolve(paidTillDate);
         });
     });
+}
+
+/**
+ * Get domain's registry expiry date using RDAP
+ * @param {string} domain - The domain name to check
+ * @returns {Promise<Date>} - The expiration date
+ */
+function getRdapExpiryDate(domain) {
+    try {
+        console.log(`Fetching RDAP data for ${domain}...`);
+        const response = fetch(`https://rdap.org/domain/${domain}`);
+
+        if (!response.ok) {
+            throw new Error(`RDAP request failed with status: ${response.status}`);
+        }
+
+        const data = response.json();
+
+        const expiryEvent = data.events?.find(event =>
+            event.eventAction === 'expiration' ||
+            event.eventAction === 'registration expiration'
+        );
+
+        if (!expiryEvent?.eventDate) {
+            throw new Error('No expiry date found in RDAP response');
+        }
+
+        const expiryDate = new Date(expiryEvent.eventDate);
+        console.log(`Found expiry date via RDAP for ${domain}: ${expiryDate.toISOString()}`);
+        return expiryDate;
+    } catch (error) {
+        console.error(`RDAP lookup error for ${domain}: ${error.message}`);
+        throw error;
+    }
 }
 
 module.exports = getDatePaidTill;
