@@ -18,20 +18,20 @@ const KEYS = [
  * @param domain
  * @returns {Promise<Date>}
  */
-function getDatePaidTill(domain) {
+async function getDatePaidTill(domain) {
     return new Promise((resolve, reject) => {
         whois.lookup(domain, function(err, data) {
             console.log(`check domain ${domain}`);
 
             // On HTTP errors, fall back to RDAP data retrieval.
             if (err) {
-                try {
-                    const rdapDate = getRdapExpiryDate(domain);
-                    resolve(rdapDate);
-                } catch (error) {
-                    console.log(`${domain} - err: ${err}(RDAP: ${error}) - data: ${data}`);
-                    reject(err);
-                }
+                getRdapExpiryDate(domain)
+                    .then(rdapDate => resolve(rdapDate))
+                    .catch(error => {
+                        console.log(`${domain} - err: ${err}(RDAP: ${error}) - data: ${data}`);
+                        reject(err);
+                    });
+                return; // 防止继续执行
             }
 
             const parsedData = parser.parseWhoIsData(data);
@@ -46,14 +46,14 @@ function getDatePaidTill(domain) {
 
             //On paidTillDate parse failure, fall back to RDAP data retrieval
             if (!paidTillDate) {
-                try {
-                    const rdapDate = getRdapExpiryDate(domain);
-                    resolve(rdapDate);
-                } catch (error) {
-                    msg = `No registry expiry date was found for domain ${domain} \n err: ${err} \n ${data} \n RDAP Error: ${error})`;
-                    console.log(msg);
-                    reject(new Error(msg));
-                }
+                getRdapExpiryDate(domain)
+                    .then(rdapDate => resolve(rdapDate))
+                    .catch(error => {
+                        const msg = `No registry expiry date was found for domain ${domain} \n err: ${err} \n ${data} \n RDAP Error: ${error})`;
+                        console.log(msg);
+                        reject(new Error(msg));
+                    });
+                return; // 防止继续执行
             }
 
             resolve(paidTillDate);
@@ -66,16 +66,16 @@ function getDatePaidTill(domain) {
  * @param {string} domain - The domain name to check
  * @returns {Promise<Date>} - The expiration date
  */
-function getRdapExpiryDate(domain) {
+async function getRdapExpiryDate(domain) {
     try {
         console.log(`Fetching RDAP data for ${domain}...`);
-        const response = fetch(`https://rdap.org/domain/${domain}`);
+        const response = await fetch(`https://rdap.org/domain/${domain}`);
 
         if (!response.ok) {
             throw new Error(`RDAP request failed with status: ${response.status}`);
         }
 
-        const data = response.json();
+        const data = await response.json();
 
         const expiryEvent = data.events?.find(event =>
             event.eventAction === 'expiration' ||
