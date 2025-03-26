@@ -23,12 +23,13 @@ function getDatePaidTill(domain) {
         whois.lookup(domain, function(err, data) {
             console.log(`check domain ${domain}`);
 
+            // On HTTP errors, fall back to RDAP data retrieval.
             if (err) {
                 try {
                     const rdapDate = getRdapExpiryDate(domain);
                     resolve(rdapDate);
                 } catch (error) {
-                    console.log(`${domain} - err: ${err} - data: ${data}`);
+                    console.log(`${domain} - err: ${err}(RDAP: ${error}) - data: ${data}`);
                     reject(err);
                 }
             }
@@ -43,7 +44,17 @@ function getDatePaidTill(domain) {
                 }
             }
 
-            if (!paidTillDate) reject(new Error(`No registry expiry date was found for domain ${domain} \n ${data}`));
+            //On paidTillDate parse failure, fall back to RDAP data retrieval
+            if (!paidTillDate) {
+                try {
+                    const rdapDate = getRdapExpiryDate(domain);
+                    resolve(rdapDate);
+                } catch (error) {
+                    msg = `No registry expiry date was found for domain ${domain} \n err: ${err} \n ${data} \n RDAP Error: ${error})`;
+                    console.log(msg);
+                    reject(new Error(msg));
+                }
+            }
 
             resolve(paidTillDate);
         });
